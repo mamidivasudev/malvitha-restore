@@ -108,7 +108,7 @@
     let last;
     for (const dd of [day, day - 1, day + 1]) { // a phone clock a little off around midnight UTC
       const b = d.batch();
-      b.set(d.collection("enquiries").doc(rec.id), { ...rec, created: firebase.firestore.FieldValue.serverTimestamp() });
+      b.set(d.collection("enquiries").doc(rec.id), { ...rec, day: dd, created: firebase.firestore.FieldValue.serverTimestamp() });
       b.set(d.collection("limits").doc(rec.phone + "_" + dd), { n: firebase.firestore.FieldValue.increment(1), last: rec.id }, { merge: true });
       try { await b.commit(); return; } catch (e) { last = e; if (e.code !== "permission-denied") throw e; }
     }
