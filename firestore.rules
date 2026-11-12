@@ -1,0 +1,77 @@
+rules_version = '2';
+// MALVITHA Electronics Restoration
+// Customers: may only SUBMIT a repair request (and its photos). They can never read anything.
+// Admin (malvithas@gmail.com, verified, signed in): reads everything, updates status and notes only.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'malvithas@gmail.com';
+    }
+    function str(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+    // whole days since 1970 (UTC): the per-phone daily limit key
+    function today() { return math.floor(request.time.toMillis() / 86400000); }
+
+    // ---- repair requests ----
+    match /enquiries/{id} {
+      allow read: if isAdmin();
+      allow create: if id.matches('^RST-[0-9]{2}-[A-Z0-9]{6}$')
+        && request.resource.data.keys().hasOnly(['id', 'name', 'phone', 'category', 'device', 'brand', 'problem', 'contact', 'src', 'photos', 'status', 'created', 'notes'])
+        && request.resource.data.keys().hasAll(['id', 'name', 'phone', 'category', 'device', 'problem', 'contact', 'photos', 'status', 'created'])
+        && request.resource.data.id == id
+        && str(request.resource.data.name, 2, 80)
+        && request.resource.data.phone is string && request.resource.data.phone.matches('^[6-9][0-9]{9}$')
+        && request.resource.data.category in ['mouse', 'toys', 'robot', 'rc', 'appliance', 'pcb', 'gadget', 'other']
+        && str(request.resource.data.device, 2, 120)
+        && (!('brand' in request.resource.data) || str(request.resource.data.brand, 0, 120))
+        && str(request.resource.data.problem, 5, 1500)
+        && request.resource.data.contact in ['whatsapp', 'call']
+        && (!('src' in request.resource.data) || request.resource.data.src in ['qr', 'direct'])
+        && request.resource.data.photos is int && request.resource.data.photos >= 0 && request.resource.data.photos <= 5
+        && request.resource.data.status == 'new'
+        && request.resource.data.created == request.time
+        && (!('notes' in request.resource.data) || request.resource.data.notes == '')
+        // at most 5 requests per phone per day: the same write must step this phone's counter for today
+        && getAfter(/databases/$(database)/documents/limits/$(request.resource.data.phone + '_' + string(today()))).data.last == id;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'notes', 'updated'])
+        && request.resource.data.status in ['new', 'review', 'possible', 'notpossible', 'quoted', 'approved', 'inprogress', 'completed', 'cancelled']
+        && (!('notes' in request.resource.data) || str(request.resource.data.notes, 0, 3000));
+      allow delete: if isAdmin();
+
+      // photos: one document each (the free plan has no file storage); shrunk on the phone to well under 1 MB
+      match /photos/{n} {
+        allow read, delete: if isAdmin();
+        allow create: if n in ['0', '1', '2', '3', '4']
+          && int(n) < get(/databases/$(database)/documents/enquiries/$(id)).data.photos
+          && request.time < get(/databases/$(database)/documents/enquiries/$(id)).data.created + duration.value(10, 'm')
+          && request.resource.data.keys().hasOnly(['n', 'data'])
+          && request.resource.data.n == int(n)
+          && request.resource.data.data is string
+          && request.resource.data.data.size() <= 460000
+          && request.resource.data.data.matches('^data:image/(jpeg|webp|png);base64,.*');
+      }
+    }
+
+    // per-phone daily counter (phone_day): starts at 1, steps by 1, never above 5, always names the request written with it
+    match /limits/{key} {
+      allow read: if isAdmin();
+      allow create: if key.matches('^[6-9][0-9]{9}_[0-9]+$')
+        && key.split('_')[1] == string(today())
+        && request.resource.data.keys().hasOnly(['n', 'last'])
+        && request.resource.data.n == 1
+        && existsAfter(/databases/$(database)/documents/enquiries/$(request.resource.data.last));
+      allow update: if request.resource.data.keys().hasOnly(['n', 'last'])
+        && request.resource.data.n == resource.data.n + 1
+        && request.resource.data.n <= 5
+        && request.resource.data.last != resource.data.last
+        && existsAfter(/databases/$(database)/documents/enquiries/$(request.resource.data.last));
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
