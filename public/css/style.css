@@ -33,11 +33,10 @@ p{margin:0 0 12px}
 /* header */
 .hdr{position:sticky;top:0;z-index:50;background:rgba(11,11,11,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .hdr-in{display:flex;align-items:center;gap:12px;height:64px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--tx);margin-right:auto;min-width:0}
-.brand img{width:40px;height:auto}
-.brand-t{display:flex;flex-direction:column;line-height:1.1;min-width:0}
-.brand-t b{font:800 18px/1 var(--hd);letter-spacing:.06em}
-.brand-t small{font:600 11.5px/1.3 var(--hd);color:var(--y);letter-spacing:.04em;white-space:nowrap}
+.brand{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;padding:6px 12px;border-radius:10px;background:#f7f2ea;text-decoration:none;margin-right:auto;min-width:0;line-height:1}
+.brand img{height:26px;width:auto;display:block}
+.brand small{font:600 8.5px/1 var(--tx-f);letter-spacing:.22em;text-transform:uppercase;color:#9a7640;white-space:nowrap}
+@media(max-width:380px){.brand{padding:6px 9px}.brand img{height:22px}.brand small{font-size:7.5px;letter-spacing:.16em}}
 .nav{display:none}
 .hdr-wa{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:999px;background:var(--wa);color:#05310f;font:700 13.5px var(--hd);text-decoration:none}
 .hdr-wa .i{width:18px;height:18px}

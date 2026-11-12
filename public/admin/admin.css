@@ -17,10 +17,9 @@ h1,h2,h3{font-family:var(--hd);margin:0;line-height:1.2}
 
 .ah{background:var(--bk);color:#fff;position:sticky;top:0;z-index:20}
 .ah-in{max-width:1100px;margin:0 auto;padding:0 16px;height:58px;display:flex;align-items:center;gap:12px}
-.ah-brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;margin-right:auto}
-.ah-brand span{display:flex;flex-direction:column;line-height:1.1}
-.ah-brand b{font:800 16px var(--hd);letter-spacing:.06em}
-.ah-brand small{font:600 11px var(--hd);color:var(--y)}
+.ah-brand{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:6px 11px;border-radius:9px;background:#f7f2ea;text-decoration:none;margin-right:auto;line-height:1}
+.ah-brand img{height:22px;width:auto;display:block}
+.ah-brand small{font:600 8px/1 var(--tx-f,system-ui);letter-spacing:.2em;text-transform:uppercase;color:#9a7640;white-space:nowrap}
 .ah-me{display:flex;align-items:center;gap:10px;font-size:13px;color:#cfcac0;min-width:0}
 .ah-me span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ah-me .ab-o{border-color:#fff;color:#fff}
@@ -29,7 +28,7 @@ h1,h2,h3{font-family:var(--hd);margin:0;line-height:1.2}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 30px -18px rgba(0,0,0,.35)}
 .login{min-height:calc(100vh - 58px);display:grid;place-items:center;padding:20px}
 .login-c{width:100%;max-width:380px;padding:30px 24px;text-align:center}
-.login-c img{margin:0 auto 12px;background:var(--bk);border-radius:12px;padding:6px}
+.login-c img{display:block;height:auto;width:200px;margin:0 auto 16px}
 .login-c h1{font-size:24px;margin-bottom:6px}
 .login-c p{color:var(--mut);margin:0 0 20px}
 .login-c .ab-y{background:#fff;border-color:var(--line)}
